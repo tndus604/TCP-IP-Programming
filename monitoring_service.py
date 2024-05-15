@@ -1,5 +1,3 @@
-# monitoring_service.py
-
 import os
 import socket
 import struct
@@ -12,8 +10,10 @@ import ntplib
 import dns.resolver
 import dns.exception
 import threading
-import json 
+import json
 from datetime import datetime
+from time import ctime
+import uuid 
 
 def calculate_icmp_checksum(data):
     s = 0
@@ -122,25 +122,27 @@ def handle_client(client_sock):
     service = data['service']
     details = data['details']
     timestamp = data['timestamp']
+    
+    task_id = str(uuid.uuid4())  # Generate a unique task ID
 
     if service == 'HTTP':
         if 'url' in details:
             url = details['url']
             is_up, status_code = check_server_http(url)
-            response = f"[{timestamp}] HTTP URL: {url}, HTTP server status: {'True' if is_up else 'False'}, Status Code: {status_code if status_code is not None else 'N/A'}"
+            response = f"[{timestamp}] Task ID: {task_id}, HTTP URL: {url}, HTTP server status: {'True' if is_up else 'False'}, Status Code: {status_code if status_code is not None else 'N/A'}"
         else:
-            response = f"[{timestamp}] HTTP: No URL configured for {server_name}"
+            response = f"[{timestamp}] Task ID: {task_id}, HTTP: No URL configured for {server_name}"
     elif service == 'HTTPS':
         if 'url' in details:
             url = details['url']
             is_up, status_code, description = check_server_https(url)
-            response = f"[{timestamp}] HTTPS URL: {url}, HTTPS server status: {'True' if is_up else 'False'}, Status Code: {status_code if status_code is not None else 'N/A'}, Description: {description}"
+            response = f"[{timestamp}] Task ID: {task_id}, HTTPS URL: {url}, HTTPS server status: {'True' if is_up else 'False'}, Status Code: {status_code if status_code is not None else 'N/A'}, Description: {description}"
         else:
-            response = f"[{timestamp}] HTTPS: No URL configured for {server_name}"
+            response = f"[{timestamp}] Task ID: {task_id}, HTTPS: No URL configured for {server_name}"
     elif service == 'ICMP':
         server_address = details['server_address']
         ping_addr, ping_time = ping(server_address)
-        response = f"[{timestamp}] Ping: {ping_addr[0]} - {ping_time:.2f} ms" if (ping_addr and ping_time is not None) else "Ping: Request timed out or no reply received"
+        response = f"[{timestamp}] Task ID: {task_id}, Ping: {ping_addr[0]} - {ping_time:.2f} ms" if (ping_addr and ping_time is not None) else f"[{timestamp}] Task ID: {task_id}, Ping: Request timed out or no reply received"
     elif service == 'DNS':
         if 'server_address' in details:
             server_address = details['server_address']
@@ -153,40 +155,40 @@ def handle_client(client_sock):
             ]
             for dns_query, dns_record_type in dns_queries:
                 is_up, query_results = check_dns_server_status(server_address, dns_query, dns_record_type)
-                response = f"[{timestamp}] DNS Server: {server_address} - Query: {dns_query}, Type: {dns_record_type}, Query Results: {query_results}"
+                response = f"[{timestamp}] Task ID: {task_id}, DNS Server: {server_address} - Query: {dns_query}, Type: {dns_record_type}, Query Results: {query_results}"
         else:
-            response = f"[{timestamp}] DNS: No server address configured for {server_name}"
+            response = f"[{timestamp}] Task ID: {task_id}, DNS: No server address configured for {server_name}"
     elif service == 'NTP':
         if 'server_address' in details:
             server_address = details['server_address']
             is_up, ntp_time = check_ntp_server(server_address)
-            response = f"[{timestamp}] NTP: Server {server_address} - {'is up' if is_up else 'is down'}, Time: {ntp_time}"
+            response = f"[{timestamp}] Task ID: {task_id}, NTP: Server {server_address} - {'is up' if is_up else 'is down'}, Time: {ntp_time}"
         else:
-            response = f"[{timestamp}] NTP: No server address configured for {server_name}"
+            response = f"[{timestamp}] Task ID: {task_id}, NTP: No server address configured for {server_name}"
     elif service == 'TCP':
         if 'port' in details:
             port = details['port']
             is_open, description = check_tcp_port(server_name, port)
-            response = f"[{timestamp}] TCP Port: {server_name} - Port {port} - {'Open' if is_open else 'Closed'}, Description: {description}"
+            response = f"[{timestamp}] Task ID: {task_id}, TCP Port: {server_name} - Port {port} - {'Open' if is_open else 'Closed'}, Description: {description}"
         else:
-            response = f"[{timestamp}] TCP Port: No port configured for {server_name}"
+            response = f"[{timestamp}] Task ID: {task_id}, TCP Port: No port configured for {server_name}"
     elif service == 'UDP':
         if 'port' in details and 'server_address' in details:
             port = details['port']
             server_address = details['server_address']
             is_open, description = check_udp_port(server_address, port)
-            response = f"[{timestamp}] UDP Port: {server_address} - Port {port} - {'Open' if is_open else 'Closed'}, Description: {description}"
+            response = f"[{timestamp}] Task ID: {task_id}, UDP Port: {server_address} - Port {port} - {'Open' if is_open else 'Closed'}, Description: {description}"
         else:
-            response = f"[{timestamp}] UDP Port: No port configured for {server_address}"
+            response = f"[{timestamp}] Task ID: {task_id}, UDP Port: No port configured for {server_address}"
     else:
-        response = f"[{timestamp}] Unknown service: {service} for server {server_name}"
+        response = f"[{timestamp}] Task ID: {task_id}, Unknown service: {service} for server {server_name}"
 
     client_sock.sendall(response.encode())
     client_sock.close()
 
 def tcp_server():
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_sock.bind(('127.0.0.1', 54323))
+    server_sock.bind(('127.0.0.1', 54321))
     server_sock.listen(5)
     print("Monitoring Service is listening for incoming connections...")
 
