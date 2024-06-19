@@ -6,9 +6,7 @@ Network uptime monitoring utilities are essential tools for networking professio
 
 This project consists of two main components: the Monitoring Service and the Management Service. The Management Service configures and manages monitoring tasks, while the Monitoring Service performs the monitoring tasks and reports back to the Management Service. 
 
-<p>
-  <img src="./assets/video_demo.gif" alt="Video Walkthrough" width="1300">
-</p>
+![Video walkthrough](./assets/video_demo.gif)
 
 ## Software Specification in Network Monitoring App
 
