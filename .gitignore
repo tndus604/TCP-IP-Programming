@@ -2,7 +2,8 @@
 requirements.txt
 
 # Ignore Socket Programming Project 2.docx
-*.docx
+Socket Programming Project 2.docx
 
 # Ignore all PDF files
 *.pdf
+
