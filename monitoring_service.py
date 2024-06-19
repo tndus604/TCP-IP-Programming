@@ -188,7 +188,7 @@ def handle_client(client_sock):
 
 def tcp_server():
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_sock.bind(('127.0.0.1', 54321))
+    server_sock.bind(('127.0.0.1', 54322))
     server_sock.listen(5)
     print("Monitoring Service is listening for incoming connections...")
 

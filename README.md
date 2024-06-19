@@ -18,3 +18,4 @@ sudo python3 monitoring_service.py
 ```bash
 python3 management_service.py
 ```
+

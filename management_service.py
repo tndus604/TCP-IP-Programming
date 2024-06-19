@@ -9,8 +9,7 @@ from prompt_toolkit.patch_stdout import patch_stdout
 
 # Configuration of monitoring services
 monitoring_services = [
-    {'ip': '127.0.0.1', 'port': 54321},
-    # Add other monitoring services here
+    {'ip': '127.0.0.1', 'port': 54322},
 ]
 
 # Configuration of tasks
